@@ -1,0 +1,26 @@
+[package]
+name = "forrust_fire_tracing"
+version = "0.1.0"
+description = "Tracing integration for `forrust_fire_tree`"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+forrust_fire_tree = { path = "../tree", version = "0.1.0" }
+thread_local = "1.1.9"
+tracing.workspace = true
+
+serde.workspace = true
+tracing-serde = { version = "0.2.0", optional = true }
+
+[features]
+serde = [
+    "dep:serde",
+    "forrust_fire_tree/serde",
+    "serde/derive",
+    "dep:tracing-serde",
+]
+
+[dev-dependencies]
+serde_json = "1.0.140"

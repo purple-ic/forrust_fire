@@ -1,0 +1,16 @@
+[package]
+name = "forrust_fire_tree"
+version = "0.1.0"
+description = "A tree data structure"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+serde.workspace = true
+
+[features]
+serde = ["dep:serde"]
+
+[dev-dependencies]
+serde_json = "1.0.140"

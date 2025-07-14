@@ -1,0 +1,230 @@
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+html {
+    background-color: rgb(36, 36, 36);
+    color: rgb(255, 255, 255);
+    font-family: "Ubuntu Mono", monospace;
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
+    height: 100%;
+}
+
+#select {
+    border: 3px solid rgb(155, 155, 155);
+    /* border-radius: 10px; */
+    padding: 15px;
+    max-width: max(30%, 500px);
+    background-color: rgb(0, 0, 0);
+}
+
+#select #title {
+    float: right;
+}
+
+.fire-char-1 {
+    color: orange;
+}
+
+.fire-char-2 {
+    color: red;
+}
+
+code {
+    background-color: rgb(30, 30, 30);
+    border-radius: 4px;
+    padding: 1px 3px;
+}
+
+:link {
+    /* color: rgb(158, 227, 255) */
+    color: orange;
+}
+
+:link:hover {
+    color: red;
+}
+
+#tree-view {
+    padding-left: 5px;
+}
+
+.payload-key:not(.payload-key-special) {
+    color: rgb(238, 155, 0);
+}
+
+.payload-key-special {
+    color: rgb(255, 60, 46)
+}
+
+.payload-pair {
+    margin: 2px;
+    margin-left: 5px;
+    /* margin-left: 10px; */
+}
+
+.tree-node-inner {
+    border-left: 2px;
+    border-left-style: solid;
+    margin-left: 2ch;
+    /* padding-left: 10px; */
+}
+
+.tree-node-0>.tree-node-inner {
+    border-left-color: rgb(236, 196, 255);
+}
+
+.tree-node-1>.tree-node-inner {
+    border-left-color: rgb(196, 232, 255);
+}
+
+/* .tree-node-inner-2 {
+    border-left-color: rgb(0, 234, 255);
+}
+
+.tree-node-inner-3 {
+    border-left-color: rgb(255, 242, 0);
+} */
+
+.payload-info {
+    margin-bottom: 0px;
+    margin-top: 0px;
+    /* border-left: 4px;
+    border-left-color: rgb(236, 196, 255);
+    border-left-style: solid;
+    padding-left: 3px; */
+}
+
+.payload-info::before {
+    content: "\00a0";
+    text-decoration: line-through;
+    padding-right: 6px;
+}
+
+.tree-node-0>.payload-info::before {
+    text-decoration-color: rgb(196, 232, 255)
+}
+
+.tree-node-1>.payload-info::before {
+    text-decoration-color: rgb(236, 196, 255)
+}
+
+/* .tree-node-warn {
+    background-color: rgb(89, 82, 0);
+}
+
+.tree-node-info {
+    background-color: rgb(0, 65, 89);
+}
+
+.tree-node-error {
+    background-color: rgb(89, 16, 0);
+}
+
+.tree-node-debug {
+    background-color: rgba(0, 65, 89)
+}
+
+.tree-node-trace {
+    background-color: rgba(0, 65, 89);
+} */
+
+.payload-level-warn {
+    color: rgb(214, 196, 0);
+}
+
+.payload-level-info {
+    color: rgb(52, 223, 0);
+}
+
+.payload-level-error {
+    color: rgb(208, 38, 0);
+}
+
+.payload-level-debug {
+    color: rgb(0, 132, 181);
+}
+
+.payload-level-trace {
+    color: rgb(232, 232, 232);
+}
+
+.payload-level {
+    font-weight: bold;
+}
+
+#view-header {
+    max-width: 100%;
+    background-color: black;
+    border-bottom: 3px solid rgb(155, 155, 155);
+    padding: 15px;
+    margin-bottom: 30px;
+}
+
+#view-header-right {
+    float: right;
+}
+
+#view-header-msg {
+    font-size: small;
+    font-style: italic;
+    max-width: 30vw;
+    display: inline-block;
+    text-align: right;
+    opacity: 0%;
+    transition: opacity 200ms;
+}
+
+#view-header:hover #view-header-msg {
+    opacity: 100%;
+}
+
+#view-header::after {
+    /* 
+        https://stackoverflow.com/a/10969052
+        i hate the web so much
+    */
+    content: "";
+    display: table;
+    clear: both;
+}
+
+#view-header #title {
+    /* text-align: right; */
+    margin: 0px;
+    display: inline;
+}
+
+#tree-view-root {
+    font-style: italic;
+    font-weight: bold;
+    animation-name: root;
+    animation-direction: alternate;
+    animation-duration: 10s;
+    animation-iteration-count: infinite;
+}
+
+@keyframes root {
+    from {
+        color: rgb(236, 196, 255)
+            /* color: rgb(255, 165, 0) */
+    }
+
+    to {
+        color: rgb(196, 232, 255)
+            /* color: rgb(255, 77, 0) */
+    }
+}

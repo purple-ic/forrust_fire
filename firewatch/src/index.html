@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>fireWatch</title>
+    <script src="./index.ts" type="module"></script>
+    <link href="./style.css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="center" id="select-wrapper">
+        <div id="select">
+            <h1 id="title">fireWatch</h1>
+            <!-- todo: link to crates -->
+            <p>
+                a neat little tool for viewing program execution breakdowns produced by
+                <code>forrust_fire_tracing</code>
+            </p>
+            <p>
+                you can drag & drop <code>.json</code> files onto this page or <a href="javascript:openFile()">click
+                    here to open a file dialog</a>
+            </p>
+            <p>
+                ...or click <a href="javascript:openDemo()">here</a> to open a demo file and see what's up
+            </p>
+            <p>
+                (this is a development tool. it's not going to be good on mobile. please be on desktop for this)
+            </p>
+        </div>
+
+    </div>
+    <div id="view" style="display: none;">
+        <div id="view-header">
+            <a href="javascript:window.location.reload()">back</a>
+            <div id="view-header-right">
+                <span id="view-header-msg"></span>
+            </div>
+        </div>
+        <div id="tree-view">
+            <span id="tree-view-root">
+                &lt;root&gt;
+            </span>
+        </div>
+    </div>
+</body>
+
+</html>

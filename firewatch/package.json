@@ -1,0 +1,14 @@
+{
+  "name": "firewatch",
+  "type": "module",
+  "license": "MIT OR Apache-2.0",
+  "private": true,
+  "scripts": {
+    "dev": "bun run src/index.html",
+    "prod": "rm -r ./out; tsc && bun build src/index.html --outdir ./out --sourcemap=linked --minify --production --footer '// Why hello there, lone traveller!'"
+  },
+  "devDependencies": {},
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

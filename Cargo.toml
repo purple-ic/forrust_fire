@@ -1,0 +1,10 @@
+[workspace]
+package.edition = "2024"
+package.license = "MIT OR Apache-2.0"
+package.repository = "https://github.com/purple-ic/forrust_fire"
+resolver = '3'
+members = ["crates/*"]
+
+[workspace.dependencies]
+tracing = "0.1.41"
+serde = { version = "1.0.219", optional = true }
