@@ -14,6 +14,11 @@ jobs:
         run: | 
           cd firewatch
           bun prod
+      - name: Upload built files
+        id: deployment
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: firewatch/prod/
   deploy:
     runs-on: ubuntu-latest
     needs: build
