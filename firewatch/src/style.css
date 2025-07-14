@@ -1,5 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Ubuntu+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
+/* todo:
+    - clean up comments
+    - change hard-coded colors to variables
+    - split up into multiple files
+*/
+
 html {
     background-color: rgb(36, 36, 36);
     color: rgb(255, 255, 255);
@@ -18,6 +24,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
 
     width: 100%;
     height: 100%;
@@ -33,6 +40,10 @@ body {
 
 #select #title {
     float: right;
+}
+
+#select-footer {
+    margin-top: 5px;
 }
 
 .fire-char-1 {
@@ -54,7 +65,12 @@ code {
     color: orange;
 }
 
-:link:hover {
+:visited {
+    color: orange;
+}
+
+:link:hover,
+:visited:hover {
     color: red;
 }
 
@@ -186,6 +202,21 @@ code {
     text-align: right;
     opacity: 0%;
     transition: opacity 200ms;
+    background-image: linear-gradient(110deg, white 45%, #d89923, #d89923, #cf1c1c 50%, #d89923, #d89923, white 55%);
+    background-clip: text;
+    color: transparent;
+    background-size: 500% 300%;
+    animation: header-msg 5s linear 0s infinite running;
+}
+
+@keyframes header-msg {
+    from {
+        background-position: 100% 0%;
+    }
+
+    to {
+        background-position: 0% 0%;
+    }
 }
 
 #view-header:hover #view-header-msg {
@@ -206,25 +237,13 @@ code {
     /* text-align: right; */
     margin: 0px;
     display: inline;
+    font-size: x-large;
 }
 
 #tree-view-root {
     font-style: italic;
     font-weight: bold;
-    animation-name: root;
-    animation-direction: alternate;
-    animation-duration: 10s;
-    animation-iteration-count: infinite;
-}
-
-@keyframes root {
-    from {
-        color: rgb(236, 196, 255)
-            /* color: rgb(255, 165, 0) */
-    }
-
-    to {
-        color: rgb(196, 232, 255)
-            /* color: rgb(255, 77, 0) */
-    }
+    background-image: linear-gradient(to right top, rgb(236, 196, 255), rgb(196, 232, 255));
+    background-clip: text;
+    color: transparent;
 }
