@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "bun run src/index.html",
-    "prod": "rm -r ./out; tsc && bun build src/index.html --outdir ./out --sourcemap=linked --minify --production --footer '// Why hello there, lone traveller!'"
+    "prod": "rm -r ./out; tsc && bun build src/index.html --outdir ./out --sourcemap=linked --minify --production --footer \"// You're looking at the minified version of the page's code! The full source code is available at https://github.com/purple-ic/forrust_fire/tree/main/firewatch\""
   },
   "devDependencies": {},
   "peerDependencies": {
