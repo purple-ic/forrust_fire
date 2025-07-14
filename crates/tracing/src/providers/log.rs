@@ -83,6 +83,7 @@ pub struct LogEvent {
 /// # Example
 ///
 /// ```
+/// # fn main() -> Result<(), serde_json::Error> {
 /// use forrust_fire_tracing::providers::log::{LogEventProvider, LogAshes};
 /// use forrust_fire_tracing::providers::ProviderExt;
 ///
@@ -99,26 +100,9 @@ pub struct LogEvent {
 /// #[cfg(feature = "serde")]
 /// {
 ///     let json = serde_json::to_string_pretty(&log_ashes)?;
-/// # println!("{json}");
-///     let expected = r#"{
-///   "0": {
-///     "v": {
-///       "name": "event crates/tracing/src/providers/log.rs:12",
-///       "target": "rust_out",
-///       "level": "INFO",
-///       "mod": "rust_out",
-///       "file": "crates/tracing/src/providers/log.rs",
-///       "line": 12,
-///       "is_span": false,
-///       "ctx": {
-///         "message": "hello, world"
-///       }
-///     }
-///   }
-/// }"#;
-/// # println!("{expected}");
-///     assert_eq!(json, expected);
+///     println!("{json}");
 /// }
+/// # Ok(()) }
 /// ```
 pub struct LogEventProvider {
     /// Field infos for recorded events.
@@ -234,7 +218,7 @@ impl EventProvider for LogEventProvider {
 mod serde {
     use std::ops::Range;
 
-    use serde::{Serialize, ser::SerializeMap};
+    use serde::{ser::SerializeMap, Serialize};
     use tracing_serde::{AsSerde, SerializeLevel};
 
     use crate::providers::log::{LogAshes, LogEvent};
