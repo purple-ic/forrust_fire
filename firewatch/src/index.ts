@@ -159,6 +159,10 @@ function begin(on: any) {
     elById(HTMLElement, "view-header-msg").textContent = randomElement(msgs);
 
     const treeView = elById(HTMLDivElement, "tree-view");
+    for (const child of treeView.children) {
+        if (child.id != "tree-view-root")
+            removeFromParent(child);
+    }
     buildTree(treeView, on, 0);
 
     console.timeEnd("build tree");
