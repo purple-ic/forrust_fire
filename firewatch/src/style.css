@@ -247,3 +247,11 @@ code {
     background-clip: text;
     color: transparent;
 }
+
+#view-header-tools {
+    display: inline;
+}
+
+#view-header-tools * {
+    padding-right: 10px;
+}
