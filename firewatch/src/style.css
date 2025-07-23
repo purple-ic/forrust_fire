@@ -95,8 +95,12 @@ code {
 .tree-node-inner {
     border-left: 2px;
     border-left-style: solid;
-    margin-left: 2ch;
+    margin-left: calc(2.5ch + 1px);
     /* padding-left: 10px; */
+}
+
+.tree-node-inner-collapsed {
+    display: None;
 }
 
 .tree-node-0>.tree-node-inner {
@@ -127,7 +131,7 @@ code {
 .payload-info::before {
     content: "\00a0";
     text-decoration: line-through;
-    padding-right: 6px;
+    padding-right: 2px;
 }
 
 .tree-node-0>.payload-info::before {
@@ -136,6 +140,16 @@ code {
 
 .tree-node-1>.payload-info::before {
     text-decoration-color: rgb(236, 196, 255)
+}
+
+.payload-toggle-collapsed {
+    padding-right: 0.2ch;
+    /* font-size: smaller; */
+}
+
+.payload-toggle-collapsed:hover {
+    cursor: pointer;
+    user-select: none;
 }
 
 /* .tree-node-warn {

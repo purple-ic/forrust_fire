@@ -37,7 +37,22 @@ function workAroundGetUndefined(): undefined {
     return undefined;
 }
 
-function buildHeader(parent: HTMLElement, payload: Payload) {
+function buildHeader(parent: HTMLElement, innerElement: HTMLElement, payload: Payload) {
+    buildChild(parent, "span", el => {
+        el.textContent = "[+]";
+        el.classList.add("payload-toggle-collapsed");
+        let collapsed = true;
+        el.addEventListener("click", () => {
+            if (collapsed) {
+                innerElement.classList.remove("tree-node-inner-collapsed");
+                el.textContent = "[-]";
+            } else {
+                innerElement.classList.add("tree-node-inner-collapsed");
+                el.textContent = "[+]";
+            }
+            collapsed = !collapsed;
+        });
+    });
     if (payload.level != workAroundGetUndefined()) {
         const level = String(payload.level);
         const levelLo = level.toLowerCase();
@@ -103,16 +118,20 @@ function buildTree(parent: HTMLElement, tree: Tree, level: number) {
     parent.classList.add("tree-node-" + level % 2);
     let children: (HTMLElement | null)[] = [];
 
+    const inner = document.createElement("div");
     if (tree.v != undefined) {
         const payload = tree.v;
         buildChild(parent, "p", p => {
             p.classList.add("payload-info");
-            buildHeader(p, payload);
+            buildHeader(p, inner, payload);
         });
     }
 
-    const inner = document.createElement("div");
     inner.classList.add("tree-node-inner");
+    // collapse all elements by default except for root
+    if (level != 0)
+        inner.classList.add("tree-node-inner-collapsed");
+
     parent.appendChild(inner);
 
     for (const [key, v] of Object.entries(tree)) {
