@@ -16,8 +16,9 @@ jobs:
           bun prod
       - name: Prepare build
         run: |
-          mkdir -p ./dist/fireWatch
-          mv ./fireWatch/out/* ./dist/fireWatch
+          echo "$PWD"
+          mkdir -p ../dist/fireWatch
+          mv ./out/* ../dist/fireWatch
       - name: Upload built files
         id: deployment
         uses: actions/upload-pages-artifact@v3
