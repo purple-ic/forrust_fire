@@ -14,9 +14,6 @@ jobs:
         run: | 
           cd firewatch
           bun prod
-      - name: Prepare build
-        run: |
-          echo "$PWD"
           mkdir -p ../dist/fireWatch
           mv ./out/* ../dist/fireWatch
       - name: Upload built files
