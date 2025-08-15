@@ -6,48 +6,55 @@
 //!
 //! [`LogEventProvider`]: log::LogEventProvider
 
-use crate::{AshTrayce, EventProvider, run_forest_ret};
+use crate::{AshTrayce, EventProvider, nothread_run_forest_ret};
 
 pub mod log;
 
 /// Extensions for the [`EventProvider`] trait.
+// no need to seal this; since there is a blanket impl for any EventProvider _and_ the trait requires
+//                       the implementor to be EventProvider, there is no way for someoneo to impl it
+//                       on anything else
 pub trait ProviderExt: EventProvider {
     /// Runs a function with a [`ForestFireSubscriber`] using the given [`EventProvider`],
     /// allowing returning values.
     ///
-    /// This is just a shorthand for [`run_forest_ret`].
+    /// This is just a shorthand for [`nothread_run_forest_ret`]. Just like `nothread_run_forest_ret`,
+    /// the subscriber is **only set for the current thread**; if you'd like to multithread,
+    /// consider a manual approach.
     ///
     /// [`ForestFireSubscriber`]: crate::ForestFireSubscriber
     ///
     /// # Panics
     ///
-    /// See [`run_forest_ret`](crate::run_forest_ret#panics).
-    fn run_ret<R>(self, func: impl FnOnce() -> R) -> (R, AshTrayce<Self>)
+    /// See [`nothread_run_forest_ret`](crate::nothread_run_forest_ret#panics).
+    fn nothread_run_ret<R>(self, func: impl FnOnce() -> R) -> (R, AshTrayce<Self>)
     where
         Self: Send,
         Self::Event: Send,
         Self: Sized,
     {
-        run_forest_ret(self, func)
+        nothread_run_forest_ret(self, func)
     }
 
     /// Runs a function with a [`ForestFireSubscriber`] using the given [`EventProvider`].
     ///
-    /// This is just a shorthand for [`run_forest`].
+    /// This is just a shorthand for [`nothread_run_forest`]. Just like `nothread_run_forest`,
+    /// the subscriber is **only set for the current thread**; if you'd like to multithread,
+    /// consider a manual approach.
     ///
     /// [`ForestFireSubscriber`]: crate::ForestFireSubscriber
-    /// [`run_forest`]: crate::run_forest
+    /// [`nothread_run_forest`]: crate::run_forest
     ///
     /// # Panics
     ///
-    /// See [`run_forest_ret`](crate::run_forest_ret#panics).
+    /// See [`nothread_run_forest_ret`](crate::nothread_run_forest_ret#panics).
     fn run(self, func: impl FnOnce()) -> AshTrayce<Self>
     where
         Self: Send,
         Self::Event: Send,
         Self: Sized,
     {
-        let ((), trayce) = self.run_ret(func);
+        let ((), trayce) = self.nothread_run_ret(func);
         trayce
     }
 }

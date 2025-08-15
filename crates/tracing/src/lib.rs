@@ -403,8 +403,8 @@ pub struct AshTrayce<P: EventProvider> {
 /// allowing returning values.
 ///
 /// For the duration of the function, a `ForestFireSubscriber` will be set as the
-/// [default trace subscriber]; any uses of the default trace macros will report to
-/// this subscriber.
+/// [default trace subscriber] for the current thread; any uses of the default trace
+/// macros will report to this subscriber.
 ///
 /// If you're not returning any values, you'll probably want [`run_forest`].
 ///
@@ -418,7 +418,7 @@ pub struct AshTrayce<P: EventProvider> {
 /// reference to that `Arc`, forcing the function to **panic**.
 ///
 /// [unwrapped]: Arc::into_inner
-pub fn run_forest_ret<Provider: EventProvider + Send, R>(
+pub fn nothread_run_forest_ret<Provider: EventProvider + Send, R>(
     provider: Provider,
     func: impl FnOnce() -> R,
 ) -> (R, AshTrayce<Provider>)
@@ -436,8 +436,8 @@ where
 /// Runs a function with a [`ForestFireSubscriber`] using the given [`EventProvider`].
 ///
 /// For the duration of the function, a `ForestFireSubscriber` will be set as the
-/// [default trace subscriber]; any uses of the default trace macros will report to
-/// this subscriber.
+/// [default trace subscriber] for the current thread; any uses of the default trace
+/// macros will report to this subscriber.
 ///
 /// If you'd like to return a value from the closure, use [`run_forest_ret`].
 ///
@@ -446,13 +446,13 @@ where
 /// # Panics
 ///
 /// See [`run_forest_ret`](run_forest_ret#panics)
-pub fn run_forest<Provider: EventProvider + Send>(
+pub fn nothread_local_run_forest<Provider: EventProvider + Send>(
     provider: Provider,
     func: impl FnOnce(),
 ) -> AshTrayce<Provider>
 where
     Provider::Event: Send,
 {
-    let ((), trayce) = run_forest_ret(provider, func);
+    let ((), trayce) = nothread_run_forest_ret(provider, func);
     trayce
 }
