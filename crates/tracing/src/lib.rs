@@ -161,7 +161,7 @@ pub trait EventProvider: 'static {
     /// Whether to call [`EventProvider::make_visitor`] if the values have already
     /// been provided in [`EventInfo::values_early`].
     ///
-    /// The default implementation deleates to [`EventProvider::should_use_visitor`].
+    /// The default implementation delegates to [`EventProvider::should_use_visitor`].
     fn should_use_visitor_if_values_given(&self) -> bool {
         Self::should_use_visitor()
     }
@@ -183,6 +183,8 @@ impl Default for Local {
     }
 }
 
+// note: we assume that an Inner is fine to read even if it's been poisoned
+//       keep that in mind if we add any more functionality
 struct Inner<P: EventProvider> {
     forest: ForestFire<P::Event>,
     provider: P,
@@ -223,7 +225,7 @@ impl<P: EventProvider> ForestFireSubscriber<P> {
     ///
     /// Please see [ForestFire::burn] for performance considerations.
     pub fn burn(self) -> AshTrayce<P> {
-        let inner = self.inner.into_inner().unwrap_or_else(|_| todo!());
+        let inner = mutex_into_inner_ignore_poison(self.inner);
         let ash = inner.forest.burn();
         AshTrayce {
             ash,
@@ -243,7 +245,7 @@ impl<P: EventProvider> ForestFireSubscriber<P> {
     }
 
     fn inner<'this>(&'this self) -> MutexGuard<'this, Inner<P>> {
-        self.inner.lock().unwrap_or_else(|_| todo!())
+        mutex_lock_ignore_poison(&self.inner)
     }
 }
 
@@ -261,15 +263,35 @@ fn br2sp(branch: fire::BranchId) -> span::Id {
         .try_into()
         .ok()
         .and_then(|x: u64| x.checked_add(1))
-        .map(|x| unsafe { NonZeroU64::new_unchecked(x) })
-        .unwrap_or_else(|| todo!());
+        .map(|x| 
+            // SAFETY: checked_add cannot overflow and we just added 1, so `x`
+            //         will never be zero
+            unsafe { NonZeroU64::new_unchecked(x)
+        })
+        .unwrap_or_else(|| 
+            panic!(
+                "ID overflow: cannot convert branch ID {} (max = {}) to span ID",
+                branch.value(), 
+                u64::MAX - 1 // since spans are one-indexed
+            )
+        );
     span::Id::from_non_zero_u64(v)
 }
 
 fn sp2br(span: &span::Id) -> fire::BranchId {
     let v = span.into_non_zero_u64().get() - 1; // wont underflow cause span is non-zero
-    let v = usize::try_from(v).unwrap_or_else(|_| todo!());
+    let v = usize::try_from(v)
+        .unwrap_or_else(|_| panic!("ID overflow: cannot convert span ID {v} (after converting to zero-indexing) to branch ID (max = {})", usize::MAX));
     fire::BranchId::new(v)
+}
+
+fn ensure_normal<T>(forest: &ForestFire<T>, original: &span::Id, id: fire::BranchId) {
+    if !forest.exists(id) {
+        panic!("the provided span ({}) does not refer to an existing node", original.into_u64())
+    }
+    if id.is_root() {
+        panic!("the provided span ({}) refers to root", original.into_u64());
+    }
 }
 
 impl<P: EventProvider> Subscriber for ForestFireSubscriber<P> {
@@ -313,7 +335,8 @@ impl<P: EventProvider> Subscriber for ForestFireSubscriber<P> {
         let id = sp2br(span);
         let mut inner = self.inner();
         let inner = &mut *inner;
-        let payload = inner.forest.get_payload_mut(id).unwrap_or_else(|| todo!());
+        ensure_normal(&inner.forest, span, id);
+        let payload = inner.forest.payload_mut(id);
         values.record(&mut inner.provider.make_visitor(id.value(), payload));
 
         // let fields = Range::clone(&payload.fields);
@@ -348,7 +371,7 @@ impl<P: EventProvider> Subscriber for ForestFireSubscriber<P> {
         // );
         if P::should_use_visitor() {
             let inner = &mut *inner;
-            let payload = inner.forest.get_payload_mut(id).unwrap_or_else(|| todo!());
+            let payload = inner.forest.payload_mut(id);
 
             event.record(&mut inner.provider.make_visitor(id.value(), payload));
         }
@@ -362,7 +385,8 @@ impl<P: EventProvider> Subscriber for ForestFireSubscriber<P> {
         drop(local);
         if P::should_span_enter() {
             let mut inner = self.inner();
-            let payload = inner.forest.get_payload_mut(br).unwrap_or_else(|| todo!());
+            ensure_normal(&inner.forest, span, br);
+            let payload = inner.forest.payload_mut(br);
             self.inner().provider.span_enter(br.value(), payload);
         }
     }
@@ -379,7 +403,8 @@ impl<P: EventProvider> Subscriber for ForestFireSubscriber<P> {
         drop(local);
         if P::should_span_exit() {
             let mut inner = self.inner();
-            let payload = inner.forest.get_payload_mut(br).unwrap_or_else(|| todo!());
+            ensure_normal(&inner.forest, span, br);
+            let payload = inner.forest.payload_mut(br);
             self.inner().provider.span_exit(br.value(), payload);
         }
     }
@@ -463,5 +488,12 @@ fn mutex_lock_ignore_poison<T>(mutex: &Mutex<T>) -> MutexGuard<'_, T> {
             mutex.clear_poison();
             err.into_inner()
         }
+    }
+}
+
+fn mutex_into_inner_ignore_poison<T>(mutex: Mutex<T>) -> T {
+    match mutex.into_inner() {
+        Ok(x) => x,
+        Err(e) => e.into_inner(),
     }
 }

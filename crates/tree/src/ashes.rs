@@ -98,11 +98,17 @@ fn children_len(r: Range<BranchId>) -> usize {
 fn nth_child(range: Range<BranchId>, idx: usize) -> BranchId {
     let target = match range.start.value().checked_add(idx) {
         Some(v) => v,
-        None => todo!(),
+        None => panic!(
+            "the given child # ({idx}), when added to the child index start ({}), overflows usize",
+            range.start.value()
+        ),
     };
     let target = BranchId::new_branch(target);
     if !range.contains(&target) {
-        todo!()
+        panic!(
+            "there are only {} children, but tried access #{idx}",
+            range.end.value() - range.start.value()
+        )
     }
     target
 }

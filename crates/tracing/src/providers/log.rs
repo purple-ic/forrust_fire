@@ -133,20 +133,23 @@ impl LogEventProvider {
         }
         impl<'a> field::Visit for V<'a> {
             fn record_debug(&mut self, field: &field::Field, value: &dyn std::fmt::Debug) {
+                if field.index() >= self.fields.len() {
+                    return; // simply ignore fields that don't exist
+                }
+
                 let str_start = self.p.string.len();
                 self.p
                     .string
                     .write_fmt(format_args!("{value:?}"))
-                    .unwrap_or_else(|_| todo!());
+                    .unwrap_or_else(|_| {
+                        panic!("could not format field {:?} to string", field.name())
+                    });
                 let str_end = self.p.string.len();
-                if field.index() >= self.fields.len() {
-                    todo!()
-                }
+
                 let field_idx = self
                     .fields
                     .start
-                    .checked_add(field.index())
-                    .unwrap_or_else(|| todo!());
+                    .checked_add(field.index()).expect("the field info should already exist at this index, so the index should also not overflow usize");
                 self.p.field_infos[field_idx].value = str_start..str_end;
             }
         }
@@ -218,7 +221,7 @@ impl EventProvider for LogEventProvider {
 mod serde {
     use std::ops::Range;
 
-    use serde::{ser::SerializeMap, Serialize};
+    use serde::{Serialize, ser::SerializeMap};
     use tracing_serde::{AsSerde, SerializeLevel};
 
     use crate::providers::log::{LogAshes, LogEvent};
