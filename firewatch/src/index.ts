@@ -115,7 +115,7 @@ function buildTree(parent: HTMLElement, stats: TreeStats, tree: Tree, level: num
     parent.classList.add("tree-node-" + level % 2);
     let children: (HTMLElement | null)[] = [];
 
-    const inner = stats.buildChild(parent, "div");
+    const inner = stats.buildEl("div");
     if (tree.v != undefined) {
         const payload = tree.v;
         stats.buildChild(parent, "p", p => {
@@ -123,6 +123,7 @@ function buildTree(parent: HTMLElement, stats: TreeStats, tree: Tree, level: num
             buildHeader(p, stats, inner, payload);
         });
     }
+    parent.appendChild(inner);
 
     inner.classList.add("tree-node-inner");
     // collapse all elements by default except for root
