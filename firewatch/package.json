@@ -4,10 +4,12 @@
   "license": "MIT OR Apache-2.0",
   "private": true,
   "scripts": {
-    "dev": "bun run src/index.html",
-    "prod": "rm -r ./out; tsc && bun build src/index.html --outdir ./out --sourcemap=linked --minify --production --footer \"// You're looking at the minified version of the page's code! The full source code is available at https://github.com/purple-ic/forrust_fire/tree/main/firewatch\""
+    "dev": "npx vite",
+    "prod": "npx vite build --outDir ../out --emptyOutDir --minify false --sourcemap true"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "vite": "^7.1.2"
+  },
   "peerDependencies": {
     "typescript": "^5"
   }

@@ -2,8 +2,6 @@ import { title } from "./fireAnim";
 import { buildChild, elById, nn, removeFromParent, TODO } from "./util";
 import demo from "./demo.json";
 
-import.meta.hot.accept;
-
 interface Payload {
     level?: unknown;
     name?: unknown;
@@ -22,7 +20,7 @@ class TreeStats {
     nodes: number = 0;
     htmlNodes: number = 0;
 
-    createElement<K extends keyof HTMLElementTagNameMap>(name: K, func?: (element: HTMLElementTagNameMap[K]) => void): HTMLElementTagNameMap[K] {
+    buildEl<K extends keyof HTMLElementTagNameMap>(name: K, func?: (element: HTMLElementTagNameMap[K]) => void): HTMLElementTagNameMap[K] {
         this.htmlNodes++;
         const el = document.createElement(name);
         if (func != undefined)
@@ -34,24 +32,6 @@ class TreeStats {
         this.htmlNodes++;
         return buildChild(parent, name, func);
     }
-}
-
-// for whatever reason, bun turns the below code:
-/*
-    if (payload.level != undefined) {
-        const level = String(payload.level);
-        const levelLo = level.toLowerCase();
-*/
-// into this code:
-/*
-    if (payload.level != null) {
-      const level = undefined;
-      const levelLo = level.toLowerCase();
-*/
-// which is very obviously bogus...
-// for whatever reason (again), adding a function which simply returns `undefined` fixes this issue
-function workAroundGetUndefined(): undefined {
-    return undefined;
 }
 
 function buildHeader(parent: HTMLElement, stats: TreeStats, innerElement: HTMLElement, payload: Payload) {
@@ -70,7 +50,7 @@ function buildHeader(parent: HTMLElement, stats: TreeStats, innerElement: HTMLEl
             collapsed = !collapsed;
         });
     });
-    if (payload.level != workAroundGetUndefined()) {
+    if (payload.level != undefined) {
         const level = String(payload.level);
         const levelLo = level.toLowerCase();
         stats.buildChild(parent, "span", el => {
@@ -91,11 +71,11 @@ function buildHeader(parent: HTMLElement, stats: TreeStats, innerElement: HTMLEl
 }
 
 function buildPayload(parent: HTMLElement, stats: TreeStats, payload: Payload) {
-    const div = stats.createElement("div");
+    const div = stats.buildEl("div");
     div.classList.add("payload");
 
     function addKvPair(special: boolean, key: string, value: string) {
-        const pairEl = stats.createElement("p");
+        const pairEl = stats.buildEl("p");
         pairEl.classList.add("payload-pair");
         stats.buildChild(pairEl, "span", keyEl => {
             keyEl.textContent = key;
@@ -161,7 +141,7 @@ function buildTree(parent: HTMLElement, stats: TreeStats, tree: Tree, level: num
             while (children.length <= iKey) {
                 children.push(null);
             }
-            const child = stats.createElement("div");
+            const child = stats.buildEl("div");
             child.classList.add("tree-node");
             // if (typeof value.v?.level == "string")
             //     child.classList.add("tree-node-" + (<string>value.v.level).toLowerCase());

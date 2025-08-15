@@ -1,6 +1,6 @@
 <!-- this is copied from the crate-level docs -->
 
-Tracing integration for [`forrust_fire_tree`](https://crates.io/crates/forrust_fire_tracing).
+Tracing integration for [`forrust_fire_tree`](https://crates.io/crates/forrust_fire_tree).
 
 The main focus of this crate is `ForestFireSubscriber`, which is able to build a tree of tracing
 events & spans. Since it is based on `ForestFire` which allows inserting nodes into any part

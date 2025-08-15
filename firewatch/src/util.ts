@@ -1,5 +1,3 @@
-import.meta.hot.accept;
-
 export function nn<T>(value: T | null | undefined): T {
     if (value == null || value == undefined) {
         throw `value is ${value}`;
