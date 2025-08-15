@@ -1,6 +1,6 @@
 [package]
 name = "forrust_fire_tracing"
-version = "0.2.0"
+version = "0.2.1"
 description = "Tracing integration for `forrust_fire_tree`"
 edition.workspace = true
 license.workspace = true
