@@ -56,16 +56,10 @@ export function TODO(message?: string): never {
     }
 }
 
-export function buildChild<K extends keyof HTMLElementTagNameMap>(parent: HTMLElement, name: K, func: (element: HTMLElementTagNameMap[K]) => void): HTMLElementTagNameMap[K] {
+export function buildChild<K extends keyof HTMLElementTagNameMap>(parent: HTMLElement, name: K, func?: (element: HTMLElementTagNameMap[K]) => void): HTMLElementTagNameMap[K] {
     const element = document.createElement(name);
-    func(element);
+    if (func != undefined)
+        func(element);
     parent.appendChild(element);
     return element;
-}
-
-export function randomElement<T>(of: T[]): T {
-    const val = of[Math.floor(Math.random() * of.length)];
-    if (val == undefined)
-        throw "array should not be empty";
-    return val;
 }
