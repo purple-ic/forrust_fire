@@ -167,6 +167,8 @@ pub trait EventProvider: 'static {
     }
 }
 
+// note: we assume that a Local is fine to read even if it's been poisoned
+//       keep that in mind if we add any more functionality
 struct Local {
     stack: Vec<fire::BranchId>,
     last_using_thread: ThreadId,
@@ -231,11 +233,7 @@ impl<P: EventProvider> ForestFireSubscriber<P> {
     }
 
     fn local<'this>(&'this self) -> MutexGuard<'this, Local> {
-        let mut local = self
-            .stack
-            .get_or_default()
-            .lock()
-            .unwrap_or_else(|_| todo!());
+        let mut local = mutex_lock_ignore_poison(self.stack.get_or_default());
         let current = thread::current().id();
         if local.last_using_thread != current {
             local.last_using_thread = current;
@@ -455,4 +453,15 @@ where
 {
     let ((), trayce) = nothread_run_forest_ret(provider, func);
     trayce
+}
+
+fn mutex_lock_ignore_poison<T>(mutex: &Mutex<T>) -> MutexGuard<'_, T> {
+    // how i wish i could just have sync_nonpoison
+    match mutex.lock() {
+        Ok(v) => v,
+        Err(err) => {
+            mutex.clear_poison();
+            err.into_inner()
+        }
+    }
 }
