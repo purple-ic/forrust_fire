@@ -1,4 +1,4 @@
-//! A tree data structure which can be built quickly and then burnt to an immutable version in one go.
+//! A tree data structure which can be built quickly and then burned to an immutable version in one go.
 //!
 //! - [`ForestFire`] is the mutable version of the tree:
 //!     - Adding a new node ([`ForestFire::branch`]) basically amounts to a [`Vec::push`].
