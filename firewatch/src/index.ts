@@ -5,7 +5,7 @@ import demo from "./demo.json";
 interface Payload {
     level?: unknown;
     name?: unknown;
-    ctx?: unknown;
+    ctx?: any;
     file?: unknown;
     is_span?: unknown;
     line?: unknown;
@@ -34,18 +34,61 @@ class TreeStats {
     }
 }
 
-function buildHeader(parent: HTMLElement, stats: TreeStats, innerElement: HTMLElement, payload: Payload) {
-    stats.buildChild(parent, "span", el => {
-        el.textContent = "[+]";
-        el.classList.add("payload-toggle-collapsed");
+interface NodeKv {
+    name: string,
+    special: boolean,
+    value: string;
+}
+
+function prepareNodeMap(payload: Payload | undefined): NodeKv[] {
+    const kvs: NodeKv[] = [];
+    if (payload == undefined)
+        return kvs;
+    if (payload.file != undefined && payload.line != undefined)
+        kvs.push({
+            name: "at",
+            special: true,
+            value: `${payload.file}:${payload.line}`
+        });
+
+    const ctx = payload.ctx;
+    if (ctx != undefined)
+        for (const [key, value] of Object.entries(ctx)) {
+            // the message is already inserted into the header for non-spans
+            if (payload.is_span === false && key == "message")
+                continue;
+
+            kvs.push({
+                name: key,
+                value: typeof (value) == "string" ? value : JSON.stringify(value),
+                special: false
+            });
+        }
+
+    return kvs;
+}
+
+function buildHeader(parent: HTMLElement, stats: TreeStats, innerElement: HTMLElement, payload: Payload, isMapEmpty: boolean) {
+    stats.buildChild(parent, "span", span => {
+        span.classList.add("payload-toggle-collapsed");
+        if (isMapEmpty) {
+            span.classList.add("payload-toggle-collapsed-empty");
+            // stats.buildChild(span, "pre", pre => {
+            //     pre.textContent = "   ";
+            // });
+            return;
+        }
+
+        span.classList.add("payload-toggle-collapsed-interactive");
+        span.textContent = "[+]";
         let collapsed = true;
-        el.addEventListener("click", () => {
+        span.addEventListener("click", () => {
             if (collapsed) {
                 innerElement.classList.remove("tree-node-inner-collapsed");
-                el.textContent = "[-]";
+                span.textContent = "[-]";
             } else {
                 innerElement.classList.add("tree-node-inner-collapsed");
-                el.textContent = "[+]";
+                span.textContent = "[+]";
             }
             collapsed = !collapsed;
         });
@@ -62,65 +105,52 @@ function buildHeader(parent: HTMLElement, stats: TreeStats, innerElement: HTMLEl
         // info.classList.add("payload-info-" + levelLo);
         // parent.classList.add("tree-node-" + level.toLowerCase());
     }
-    if (payload.name != undefined) {
-        stats.buildChild(parent, "span", el => {
-            el.textContent = String(payload.name);
-            el.classList.add("payload-name");
-        });
+    const putName = (name: any) => stats.buildChild(parent, "span", el => {
+        el.textContent = String(name);
+        el.classList.add("payload-name");
+    });
+    if (payload.is_span === false && payload.ctx?.message != null) {
+        putName(payload.ctx.message);
+    } else if (payload.name != undefined) {
+        putName(payload.name);
     }
 }
 
-function buildPayload(parent: HTMLElement, stats: TreeStats, payload: Payload) {
+function buildNodeMap(parent: HTMLElement, stats: TreeStats, map: NodeKv[]) {
     const div = stats.buildEl("div");
     div.classList.add("payload");
 
-    function addKvPair(special: boolean, key: string, value: string) {
+    for (const entry of map) {
         const pairEl = stats.buildEl("p");
         pairEl.classList.add("payload-pair");
-        stats.buildChild(pairEl, "span", keyEl => {
-            keyEl.textContent = key;
-            keyEl.classList.add("payload-key");
-            if (special)
-                keyEl.classList.add("payload-key-special");
+        stats.buildChild(pairEl, "span", key => {
+            key.textContent = entry.name;
+            key.classList.add("payload-key");
+            if (entry.special)
+                key.classList.add("payload-key-special");
         }).insertAdjacentText("afterend", ": ");
-        stats.buildChild(pairEl, "span", valEl => {
-            valEl.textContent = value;
-            valEl.classList.add("payload-val");
+        stats.buildChild(pairEl, "span", val => {
+            val.textContent = entry.value;
+            val.classList.add("payload-val");
         });
 
         div.appendChild(pairEl);
     }
-
-    if (payload.is_span) {
-        if (payload.file != undefined && payload.line != undefined)
-            addKvPair(true, "at", String(payload.file) + ":" + String(payload.line));
-    }
-
-    const ctx = payload.ctx;
-    if (ctx != undefined)
-        for (const [key, value] of Object.entries(ctx)) {
-            // const value = String(v);
-
-            addKvPair(false, key, JSON.stringify(value));
-        }
-
-    if (parent.children[0] != undefined) {
-        parent.insertBefore(div, parent.children[0]);
-    } else {
-        parent.appendChild(div);
-    }
+    parent.appendChild(div);
 }
 
 function buildTree(parent: HTMLElement, stats: TreeStats, tree: Tree, level: number) {
+    const map = prepareNodeMap(tree.v);
+    const payload = tree.v;
+
     parent.classList.add("tree-node-" + level % 2);
     let children: (HTMLElement | null)[] = [];
 
     const inner = stats.buildEl("div");
-    if (tree.v != undefined) {
-        const payload = tree.v;
+    if (payload != null) {
         stats.buildChild(parent, "p", p => {
             p.classList.add("payload-info");
-            buildHeader(p, stats, inner, payload);
+            buildHeader(p, stats, inner, payload, map.length == 0);
         });
     }
     parent.appendChild(inner);
@@ -130,9 +160,11 @@ function buildTree(parent: HTMLElement, stats: TreeStats, tree: Tree, level: num
     if (level != 0)
         inner.classList.add("tree-node-inner-collapsed");
 
+    buildNodeMap(inner, stats, map);
+
     for (const [key, v] of Object.entries(tree)) {
         if (key == "v") {
-            buildPayload(inner, stats, v);
+            continue;
         } else {
             const value: any = v;
             const iKey = Number.parseInt(key, 10);

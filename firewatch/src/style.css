@@ -86,6 +86,12 @@ code {
     color: rgb(255, 60, 46)
 }
 
+.payload-val {
+    white-space: pre-wrap;
+    display: inline-block;
+    vertical-align: top;
+}
+
 .payload-pair {
     margin: 2px;
     margin-left: 5px;
@@ -148,8 +154,15 @@ code {
 }
 
 .payload-toggle-collapsed:hover {
-    cursor: pointer;
     user-select: none;
+}
+
+.payload-toggle-collapsed-empty pre {
+    display: inline;
+}
+
+.payload-toggle-collapsed-interactive:hover {
+    cursor: pointer;
 }
 
 /* .tree-node-warn {
