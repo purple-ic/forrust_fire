@@ -234,6 +234,27 @@ impl<P: EventProvider> ForestFireSubscriber<P> {
         }
     }
 
+    /// Returns the number of logged nodes.
+    /// 
+    /// Because this works on shared references, it will have to acquire a lock
+    /// on the subscriber state; if you have exclusive reference, prefer
+    /// [`node_count_ex`] instead.
+    /// 
+    /// [`node_count_ex`]: ForestFireSubscriber::node_count_ex
+    pub fn node_count(&self) -> usize {
+        self.inner().forest.node_count()
+    }
+
+    /// Returns the number of logged nodes without locking.
+    /// 
+    /// If you have a shared reference, use [`node_count`] instead which acquires
+    /// a mutually exclusive lock.
+    /// 
+    /// [`node_count`]: ForestFireSubscriber::node_count
+    pub fn node_count_ex(&mut self) -> usize {
+        mutex_get_mut_ignore_poison(&mut self.inner).forest.node_count()
+    }
+
     fn local<'this>(&'this self) -> MutexGuard<'this, Local> {
         let mut local = mutex_lock_ignore_poison(self.stack.get_or_default());
         let current = thread::current().id();
@@ -478,6 +499,15 @@ where
 {
     let ((), trayce) = nothread_run_forest_ret(provider, func);
     trayce
+}
+
+fn mutex_get_mut_ignore_poison<T>(mutex: &mut Mutex<T>) -> &mut T {
+    match mutex.get_mut() {
+        Ok(r) => r,
+        Err(err) => {
+            err.into_inner()
+        },
+    }
 }
 
 fn mutex_lock_ignore_poison<T>(mutex: &Mutex<T>) -> MutexGuard<'_, T> {

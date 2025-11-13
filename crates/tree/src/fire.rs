@@ -55,6 +55,13 @@ impl<T> ForestFire<T> {
         Self { nodes: Vec::new() }
     }
 
+    /// Returns the number of nodes in this tree.
+    ///
+    /// This does not include the root node.
+    pub fn node_count(&self) -> usize {
+        self.nodes.len()
+    }
+
     /// Checks whether there is a branch with the given branch ID.
     ///
     /// Branch IDs given out by a `ForestFire` are valid for the entirety of that `ForestFire`'s lifetime,
