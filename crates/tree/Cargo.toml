@@ -1,6 +1,6 @@
 [package]
 name = "forrust_fire_tree"
-version = "0.1.1"
+version = "0.1.2"
 description = "A tree data structure"
 edition.workspace = true
 license.workspace = true

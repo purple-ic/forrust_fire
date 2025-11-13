@@ -10,7 +10,7 @@ checksum = "9555578bc9e57714c812a1f84e4fc5b4d21fcb063490c624de019f7464c91268"
 
 [[package]]
 name = "forrust_fire_tracing"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "forrust_fire_tree",
  "serde",
@@ -22,7 +22,7 @@ dependencies = [
 
 [[package]]
 name = "forrust_fire_tree"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "serde",
  "serde_json",
