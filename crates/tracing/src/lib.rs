@@ -315,6 +315,13 @@ fn ensure_normal<T>(forest: &ForestFire<T>, original: &span::Id, id: fire::Branc
     }
 }
 
+fn assign_parent(local: &Local, explicit_parent: Option<&span::Id>) -> fire::BranchId {
+    explicit_parent
+        .map(sp2br)
+        .or_else(|| local.stack.last().copied())
+        .unwrap_or(fire::BranchId::ROOT)
+}
+
 impl<P: EventProvider> Subscriber for ForestFireSubscriber<P> {
     fn enabled(&self, _: &tracing::Metadata<'_>) -> bool {
         // todo?
@@ -324,7 +331,7 @@ impl<P: EventProvider> Subscriber for ForestFireSubscriber<P> {
     fn new_span(&self, span: &span::Attributes<'_>) -> span::Id {
         let local = self.local();
         let mut inner = self.inner();
-        let parent = local.stack.last().copied().unwrap_or(fire::BranchId::ROOT);
+        let parent = assign_parent(&local, span.parent());
         let id = inner.forest.next_id();
         let event = inner.provider.make_event(
             id.value(),
@@ -381,7 +388,7 @@ impl<P: EventProvider> Subscriber for ForestFireSubscriber<P> {
                 values_early: None,
             },
         );
-        let parent = local.stack.last().copied().unwrap_or(fire::BranchId::ROOT);
+        let parent = assign_parent(&local, event.parent());
         inner.forest.branch(parent, payload);
         // let (_, fields) = add(
         //     &mut inner,
